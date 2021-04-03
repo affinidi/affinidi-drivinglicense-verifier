@@ -70,4 +70,16 @@ export interface VerifyCredentialOutput {
   isValid: boolean,
 }
 
+interface IHeader {
+  typ: string,
+  alg: string,
+}
+
+export interface ShareCredentialResponseToken {
+  credentialShareRequest: {
+    header: IHeader,
+    payload: any
+  }
+}
+
 export type GetSavedCredentialsOutput = W3cCredential[]

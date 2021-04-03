@@ -8,6 +8,7 @@ import {
   SignCredentialOutput,
   VCBuildUnsignedInput,
   VCBuildUnsignedOutput, VerifyCredentialInput, VerifyCredentialOutput,
+  ShareCredentialResponseToken
 } from 'utils/apis';
 
 /**
@@ -216,5 +217,26 @@ export default class ApiService {
     }
 
     alert(alertMessage || 'There has been an issue processing your request. Please check the browser console.')
+  }
+
+
+  /**
+   * Method for generating Share Credential Request Token.
+   * Endpoint info: https://affinity-verifier.staging.affinity-project.org/api-docs/#/Verifier/BuildCredentialRequest.
+   * */
+  static async generateShareCredReqJWT(input: any) {
+    const {data} = await verifierApi.post<ShareCredentialResponseToken>(endpoints.GENERATE_SHARE_REQUEST_TOKEN, input);
+
+    return data;
+  }
+
+    /**
+   * Method for Verifying Credential Response Token.
+   * Endpoint info: https://affinity-verifier.staging.affinity-project.org/api-docs/#/Verifier/VerifyCredentialShareResponse.
+   * */
+  static async verifyShareCredResJWT(input: any) {
+    const {data} = await verifierApi.post<any>(endpoints.VERIFY_SHARE_RESPONSE_TOKEN, input);
+
+    return data;
   }
 }

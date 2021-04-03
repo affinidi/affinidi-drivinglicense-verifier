@@ -1,9 +1,11 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {Button, FormControl, FormFile} from 'react-bootstrap';
+import {Button, Form, FormControl, FormFile} from 'react-bootstrap';
 import 'pages/verifier/verifier.scss'
 import ApiService from 'utils/apiService';
 import {GetSavedCredentialsOutput, UnsignedW3cCredential, W3cCredential} from 'utils/apis';
-import QrScanner from 'qr-scanner';
+import {TokenSigner} from 'jwt-js';
+import config from 'utils/config';
+import {useAuthentication} from 'utils/Authentication';
 
 interface State {
   currentUnsignedVC: UnsignedW3cCredential | null,
@@ -11,6 +13,12 @@ interface State {
   isCurrentVCVerified: boolean,
   storedVCs: GetSavedCredentialsOutput,
   isLoadingStoredVCs: boolean
+}
+
+interface ICredResToken {
+  credentialShareRequestToken: string;
+  credentialShareResponseToken: string;
+  isHolderMustBeSubject: boolean;
 }
 
 /**
@@ -24,93 +32,87 @@ const Verifier = () => {
     isCurrentVCVerified: false,
     storedVCs: [],
     isLoadingStoredVCs: true
-  })
-  const [inputVC, setinputVC] = useState('')
-  const [qrCode, setQRCode] = useState<any>('');
+  });
+  const { sdk } = useAuthentication();
+  const [requestToken, setRequestToken] = useState<string>('');
+  const [resToken, setResToken] = useState<string>('');
 
-  /**
-   * Function for verifying a signed VC.
-   * */
-  const verifyVC = async () => {
+
+  const generateShareCredReqToken = async () => {
+    console.log('Generating Share Credential Request Token');
+    const input = {
+      "credentialRequirements": [
+        {
+          "type": [
+            "IDDocumentCredentialPersonV1"
+          ]
+        }
+      ]
+    }
     try {
-      const result = await QrScanner.scanImage(qrCode)
-      // const html5QrCode = new Html5Qrcode("reader");
-      // const result = await html5QrCode.scanFile(qrCode, true)
+      // const result = await ApiService.generateShareCredReqJWT(input);
+      // console.log(result);
 
-      console.log(result)
+      // const token = new TokenSigner(result.credentialShareRequest.header.alg, config.jwtPrivateKey).sign(result.credentialShareRequest.payload)
+      // console.log(token);
+      // setRequestToken(token);
 
-      // console.log(result)
-      // if (!result) {
-      //   console.log('No QR found')
-      // }
-      if( isJson(inputVC) ) {
-        const vc = JSON.parse(inputVC)
-        const {isValid, errors} = await ApiService.verifyVC({
-          verifiableCredentials: [vc]
-        });
+      const shareRequestToken = await sdk!.generateCredentialShareRequestToken(
+        [{ type: 'IDDocumentCredentialPersonV1'}]
+      );
+      console.log(shareRequestToken)
 
-        if( isValid ) {
-          setState({
-            ...state,
-            isCurrentVCVerified: true,
-          })
-
-          alert('Signed VC successfully verified.');
-        }
-        else {
-          ApiService.alertWithBrowserConsole(errors, 'Signed VC not verified. Check console for errors.')
-        }
-      }
-      else {
-        alert('No signed VC found. Please sign a VC and try again.')
-      }
-    } catch (error) {
-      console.log(error)
-      ApiService.alertWithBrowserConsole(error.message);
+    } catch(error){
+      console.log(error);
     }
   }
 
-  const onVCValueChange = (value: string) => {
-    setinputVC(value)   
+  const sendShareCredReqToken = async () => {
+    console.log('Sending Share Credential Request Token');
   }
 
-  const isJson = (str: string) => {
-      try {
-          JSON.parse(str);
-      } catch (e) {
-          return false;
-      }
-      return true;
-  }
-
-  const onImageChange = (event: any) => {
-    // console.log(URL.createObjectURL(event.target.files[0]))
-    // setQRCode(URL.createObjectURL(event.target.files[0]))
-    setQRCode(event.target.files[0])
+  const verifyShareCredResToken = async () => {
+    console.log('Verifying Share Credential Request Token');
+    const input: ICredResToken = {
+      credentialShareRequestToken: requestToken,
+      credentialShareResponseToken: resToken,
+      isHolderMustBeSubject: true
+    }
+    
+    try {
+      const result = await ApiService.verifyShareCredResJWT(input);
+      console.log(result)
+    } catch(error){
+      console.log(error)
+    }
+    
   }
 
   return (
     <div className='tutorial-verifier'>
-            <span className='tutorial__step-text'>
-              <strong>Step 1:</strong> Verify VC
-            </span>
-            {/* <FormControl
-              as="textarea"
-              rows={15}
-              placeholder="Enter Verifiable Credential"
-              aria-label="Verifiable Credential"
-              aria-describedby="basic-addon1"
-              value={inputVC}
-              onChange={e => onVCValueChange(e.target.value)}
-              style={{margin: '20px 0'}}
-            /> */}
+      <span className='tutorial__step-text'>
+        <strong>Step 1:</strong> Generate Share Credential Request Token
+      </span>
+      <Button onClick={generateShareCredReqToken}>Generate Share Credential Request Token</Button>
 
-            <FormFile id="formcheck-api-regular">
-              <FormFile.Input onChange={(e: any) => onImageChange(e)}/>
-              <FormFile.Label>Please upload a Verifiable Credential Proof</FormFile.Label>
-              {/* <input type="file" id="file-selector" onChange={onImageChange}/> */}
-            </FormFile>
-            <Button onClick={verifyVC}>Verify signed VC</Button>
+      <span className='tutorial__step-text'>
+        <strong>Step 2:</strong> Send generated Request Token
+      </span>
+      <Button onClick={sendShareCredReqToken}>Send Share Credential Request Token</Button>
+
+      <span className='tutorial__step-text'>
+        <strong>Step 3:</strong> Verify Share Credential Response Token
+      </span>
+      <Form.Label>Share Response Token</Form.Label>
+        <Form.Control
+          type="text"
+          value={resToken}
+          autoComplete="off"
+          onChange={(e) => setResToken(e.target.value)}
+        />
+      <Button onClick={verifyShareCredResToken}>Verify Share Credential Response Token</Button>
+
+
     </div>
   )
 }

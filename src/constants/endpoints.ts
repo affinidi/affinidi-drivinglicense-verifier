@@ -11,6 +11,8 @@ interface Endpoints {
   VC_BUILD_UNSIGNED: string,
   DID_RESOLVE_DID: string,
   VERIFIER_VERIFY_VCS: string,
+  GENERATE_SHARE_REQUEST_TOKEN: string,
+  VERIFY_SHARE_RESPONSE_TOKEN: string,
 }
 
 export const endpoints: Endpoints = {
@@ -21,5 +23,7 @@ export const endpoints: Endpoints = {
   VC_BUILD_UNSIGNED: '/vc/build-unsigned',
   WALLET_SIGN_CREDENTIALS: '/wallet/sign-credential',
   DID_RESOLVE_DID: '/did/resolve-did',
-  VERIFIER_VERIFY_VCS: '/verifier/verify-vcs'
+  VERIFIER_VERIFY_VCS: '/verifier/verify-vcs',
+  GENERATE_SHARE_REQUEST_TOKEN: '/verifier/build-credential-request',
+  VERIFY_SHARE_RESPONSE_TOKEN: '/verifier/verify-share-response',
 }
