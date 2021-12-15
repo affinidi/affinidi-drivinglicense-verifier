@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@affinidi/affinidi-did-auth-lib": "^1.0.3",
+    "@affinidi/affinidi-did-auth-lib": "^2.1.0",
     "@affinidi/wallet-browser-sdk": "^4.0.0",
     "react": "^17.0.2",
     "react-bootstrap": "^1.6.0",
