@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button } from "react-bootstrap";
+import { Table } from "react-bootstrap";
 import { useAuthentication } from "./Authentication";
 import { useGlobalTokenValue } from "./MessageListener";
-import CheckCircle from '../assets/images/icons/check_green_circle.svg'
-import CrossCircle from '../assets/images/icons/cross_red_circle.svg'
+import CheckCircle from '../assets/images/icons/check_green_circle.png'
+import CrossCircle from '../assets/images/icons/cross_red_circle.png'
 import { verifyVC } from './../services/apiService';
 
 const CredentialTable = () => {
