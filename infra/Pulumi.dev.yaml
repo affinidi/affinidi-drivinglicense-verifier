@@ -1,8 +1,0 @@
-config:
-  aws:region: ap-southeast-1
-  affinidi-verifier-portal:environment: dev
-  affinidi-verifier-portal:website-name: affinidi-verifier-portal
-  affinidi-verifier-portal:site-directory: ../build
-  affinidi-verifier-portal:index-document: index.html
-  affinidi-verifier-portal:create-acm-cert: false
-  affinidi-verifier-portal:certificate-arn: arn:aws:acm:us-east-1:423240840743:certificate/5b6d31af-b10e-40d7-b538-d88caa763a17
