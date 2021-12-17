@@ -1,59 +1,30 @@
-.only-default: &only-default
-  only:
-    - api
-    - web
-    - master
+include:
+  - project: 'affinidi/foundational/foundational-pipeline'
+    ref: 'main'
+    file: 'security.yml'
 
 stages:
-  - install
-  # - test
-  - build
-  - deploy
+  - test
+  - security-testing
 
-install:
-  <<: *only-default
-  stage: install
-  image: node
+.node-base:
+  image: registry.gitlab.com/affinidi/container-image-cache/node-build:14.16.1-alpine3.13
+  before_script:
+    - npm ci --cache .npm --no-progress --no-optional --no-audit --ignore-scripts --prefer-offline
   cache:
+    key:
+      files:
+        - package.json
+        - package-lock.json
     paths:
+      - .npm/
       - node_modules/
-  artifacts:
-    paths:
-      - node_modules/
-  script:
-    - echo "Install project dependecies"
-    - npm install
-    - echo "Install successful"
 
-# test:
-#   <<: *only-default
-#   stage: test
-#   image: node
-#   script:
-#     - echo "Testing App"
-#     - npm test
-#     - echo "Test successful"
-#   coverage: /All\sfiles.*?\s+(\d+.\d+)/
-
-build:
-  <<: *only-default
-  stage: build
-  image: node
+test-unit:
+  stage: test
+  extends: .node-base
   script:
-    - echo "Build started"
-    - REACT_APP_API_KEY=$REACT_APP_API_KEY REACT_APP_API_KEY_HASH=$REACT_APP_API_KEY_HASH REACT_APP_ENVIRONMENT=prod npm run build
-    - echo "Build successfull"
-  artifacts:
-    paths:
-      - build/
+    - npm run test
+  except:
+    - /^release-.*$/ 
 
-deploy:
-  <<: *only-default
-  stage: deploy
-  dependencies:
-    - build
-  image:
-    name: amazon/aws-cli
-    entrypoint: ['']
-  script:
-    - aws s3 cp build/ s3://$S3_BUCKET/ --recursive
