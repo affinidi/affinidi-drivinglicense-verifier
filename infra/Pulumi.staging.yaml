@@ -1,8 +1,0 @@
-config:
-  aws:region: ap-southeast-1
-  affinidi-verifier-portal:environment: staging
-  affinidi-verifier-portal:website-name: affinidi-verifier-portal
-  affinidi-verifier-portal:site-directory: ../build
-  affinidi-verifier-portal:index-document: index.html
-  affinidi-verifier-portal:create-acm-cert: false
-  affinidi-verifier-portal:certificate-arn: arn:aws:acm:us-east-1:423240840743:certificate/c80e2b05-a140-4763-ad5e-8d1dd9ba0f3b
